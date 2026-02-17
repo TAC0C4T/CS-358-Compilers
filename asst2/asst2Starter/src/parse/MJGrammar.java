@@ -153,26 +153,44 @@ public class MJGrammar implements MessageObject, FilePosObject
     public Exp newOr(Exp e1, int pos, Exp e2) {
         return new Or(pos, e1, e2);
     }
+    //: <expr8> ::= <expr7> => pass
     //: <expr7> ::= <expr7> # `&& <expr6> =>
     public Exp newAnd(Exp e1, int pos, Exp e2) {
         return new And(pos, e1, e2);
     }
+    //: <expr7> ::= <expr6> => pass
     //: <expr6> ::= <expr6> # `== <expr5> =>
     public Exp newEqualEqual(Exp e1, int pos, Exp e2) {
         return new Equals(pos, e1, e2);
     }
-    //: <expr6> ::= <expr6> # != <expr5> =>
+    //: <expr6> ::= <expr6> # `!= <expr5> =>
     public Exp newNotEquals(Exp e1, int pos, Exp e2) {
         return new Not(pos, new Equals(pos, e1, e2));
     }
-
+    //: <expr6> ::= <expr5> => pass
     //: <expr5> ::= <expr5> # `< <expr4> =>
     public Exp newLessThan(Exp e1, int pos, Exp e2) {
         return new LessThan(pos, e1, e2);
     }
     //: <expr5> ::= <expr5> # `> <expr4> =>
+    public Exp newGreaterThan(Exp e1, int pos, Exp e2) {
+        return new GreaterThan(pos, e1, e2);
+    }
+    //: <expr5> ::= <expr5> # `<= <expr4> =>
+    public Exp newLessThanEqual(Exp e1, int pos, Exp e2){
+        return new Or(new LessThan(pos, e1, e2), pos, new Equals(pos, e1, e2));
+    }
     
-    //: <expr
+    //: <expr5> ::= <expr5> # `>= <expr4> =>
+    public Exp newGreaterThanEqual(Exp e1, int pos, Exp e2){
+        return new Or(new GreaterThan(pos, e1, e2), pos, new Equals(pos, e1, e2));
+    }
+
+    //: <expr5> ::= <expr5> # `instanceof <type> =>
+    public Exp newInstanceof(Exp e1, int pos, Type e2){
+        return new Instanceof(pos, e1, e2);
+    }
+    //: <expr5> ::= <expr4> => pass
     // these remaining precedence levels have been filled in to some extent,
     // but most or all of them have need to be expanded
 
@@ -181,17 +199,30 @@ public class MJGrammar implements MessageObject, FilePosObject
     {
         return new Plus(pos, e1, e2);
     }
+    //: <expr4> ::= <expr4> # `- <expr3> =>
+    public Exp newMinus(Exp e1, int pos, Exp e2)
+    {
+        return new Minus(pos, e1, e2);
+    }
     //: <expr4> ::= <expr3> => pass
-
     //: <expr3> ::= <expr3> # `* <expr2> =>
     public Exp newTimes(Exp e1, int pos, Exp e2)
     {
         return new Times(pos, e1, e2);
     }
+    //: <expr3> ::= <expr3> # `/ <expr2> =>
+    public Exp newDivide(Exp e1, int pos, Exp e2){
+        return new Divide(pos, e1, e2);
+    }
+    //: <expr3> ::= <expr3> # `% <expr2> =>
+    public Exp newMod(Exp e1, int pos, Exp e2){
+        return new Remainder(pos, e1, e2);
+    }
     //: <expr3> ::= <expr2> => pass
 
     //: <expr2> ::= <cast expr> => pass
-    //: <expr2> ::= <unary expr> => pass
+
+    
 
     //: <cast expr> ::= # `( <type> `) <cast expr> =>
     public Exp newCast(int pos, Type t, Exp e)
@@ -199,12 +230,18 @@ public class MJGrammar implements MessageObject, FilePosObject
         return new Cast(pos, t, e);
     }
     //: <cast expr> ::= # `( <type> `) <expr1> => Exp newCast(int, Type, Exp)
+    //: <expr2> ::= <unary expr> => pass
 
     //: <unary expr> ::= # `- <unary expr> =>
     public Exp newUnaryMinus(int pos, Exp e)
     {
         return new Minus(pos, new IntLit(pos, 0), e);
     }
+    //: <unary expr> ::= # `+ <unary expr> =>
+    public Exp newUnaryPlus(int pos, Exp e) {
+        return new Plus(pos, new IntLit(pos, 0), e);
+    }
+
     //: <unary expr> ::= <expr1> => pass
 
     //: <expr1> ::= # ID  =>
