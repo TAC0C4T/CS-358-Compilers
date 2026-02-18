@@ -121,6 +121,48 @@ public class MJGrammar implements MessageObject, FilePosObject
 
     //: <stmt> ::= <assign> `; => pass
 
+    //: <stmt> ::= # `break `; =>
+    public Stmt breakStmt(int pos) {
+        return new Break(pos);
+    }
+
+    //: <stmt> ::= # ID `++ =>
+    public Stmt postIncrement(int pos, String name)
+    {
+        return new Assign(pos, new IDExp(pos, name), new Plus(pos, new IDExp(pos, name), new IntLit(pos, 1)));
+    }
+
+    //: <stmt> ::= # ID `-- =>
+    public Stmt postDecrement(int pos, String name)
+    {
+        return new Assign(pos, new IDExp(pos, name), new Minus(pos, new IDExp(pos, name), new IntLit(pos, 1)));
+    }
+
+
+
+    //: <stmt> ::= # `++ ID =>
+    public Stmt preIncrement(int pos, String name)
+    {
+        return new Assign(pos, new IDExp(pos, name), new Plus(pos, new IDExp(pos, name), new IntLit(pos, 1)));
+    }
+
+    //: <stmt> ::= # `-- ID =>
+    public Stmt preDecrement(int pos, String name)
+    {
+        return new Assign(pos, new IDExp(pos, name), new Minus(pos, new IDExp(pos, name), new IntLit(pos, 1)));
+    }
+    //: <stmt> ::= # `if `( <expr> `) <stmt> `else <stmt> => 
+    public Stmt ifElseStmt(int pos, Exp e, Stmt trueb, Stmt falb) {
+        return new If(pos, e, trueb, falb);
+    }
+
+
+    //: <stmt> ::= # `if `( <expr> `) <stmt> !`else =>
+    public Stmt ifStmt (int pos, Exp e, Stmt stmnt) {
+        return new If(pos, e, stmnt, null);
+    }
+
+
     //: <stmt> ::= # `{ <stmt>* `} =>
     public Stmt newBlock(int pos, List<Stmt> sl)
     {
@@ -178,17 +220,17 @@ public class MJGrammar implements MessageObject, FilePosObject
     }
     //: <expr5> ::= <expr5> # `<= <expr4> =>
     public Exp newLessThanEqual(Exp e1, int pos, Exp e2){
-        return new Or(new LessThan(pos, e1, e2), pos, new Equals(pos, e1, e2));
+        return new Or(pos, new LessThan(pos, e1, e2), new Equals(pos, e1, e2));
     }
     
     //: <expr5> ::= <expr5> # `>= <expr4> =>
     public Exp newGreaterThanEqual(Exp e1, int pos, Exp e2){
-        return new Or(new GreaterThan(pos, e1, e2), pos, new Equals(pos, e1, e2));
+        return new Or(pos, new GreaterThan(pos, e1, e2), new Equals(pos, e1, e2));
     }
 
     //: <expr5> ::= <expr5> # `instanceof <type> =>
     public Exp newInstanceof(Exp e1, int pos, Type e2){
-        return new Instanceof(pos, e1, e2);
+        return new InstanceOf(pos, e1, e2);
     }
     //: <expr5> ::= <expr4> => pass
     // these remaining precedence levels have been filled in to some extent,
@@ -242,13 +284,69 @@ public class MJGrammar implements MessageObject, FilePosObject
         return new Plus(pos, new IntLit(pos, 0), e);
     }
 
+    //: <unary expr> ::= # `! <unary expr> =>
+    public Exp newNot(int pos, Exp e) {
+        return new Not(pos, e);
+    }
+
     //: <unary expr> ::= <expr1> => pass
+
+    //: <expr1> ::= # <expr1> `. ID =>
+    public Exp newFieldAccess(int pos, Exp e, String ID) {
+        return new FieldAccess(pos, e, ID);
+    }
 
     //: <expr1> ::= # ID  =>
     public Exp newIDExp(int pos, String name)
     {
         return new IDExp(pos, name);
     }
+
+    // <expr1> ::= <callExp> => null
+    // <expList> ::= <expr> `( <expListEl>* `) => null
+    // <expListEl> ::= `, <expr> => null
+    // <callExp> ::= # ID `( <expList> `) =>
+    //public CallStmt callExp
+
+    //: <exprs> ::= `, <expr> => pass
+
+    //: <exprList> ::= => null
+    //: <exprList> ::= # <expr> <exprs>* =>
+    public ExpList newExpList(int pos, Exp e, List<Exp> en) {
+        ExpList lst = new ExpList();
+        if(e != null) {
+            lst.append(e);
+        }
+        for (Exp temp : en) {
+            lst.append(temp);
+        }
+        return new ExpList(lst);
+    }
+
+    //: <callExp> ::= # <expr1> `. ID `( <exprList> `) =>
+    public Call newExprCall(int pos, Exp e, String id, ExpList lst){
+        if(lst == null) {
+            return new Call(pos, e, id, null);
+        }
+        return new Call(pos, e, id, new ExpList(lst));
+    }
+
+    //: <callExp> ::= # `super `. ID `( <exprList> `) =>
+    public Call newExperCall(int pos, String id, ExpList lst) {
+        if(lst == null) {
+            return new Call(pos, new Super(pos), id, null);
+        }
+        return new Call(pos, new Super(pos), id, new ExpList(lst));
+    }
+
+    //: <callExp> ::= # !<expr1> `. ID `( <exprList> `) =>
+    public Call newExprSuperCall(int pos, String id, ExpList lst) {
+        if(lst == null){
+            return new Call(pos, null, id, null);
+        }
+        return new Call(pos, null, id, new ExpList(lst));
+    }
+
     //: <expr1> ::= <expr1> !<empty bracket pair> # `[ <expr> `] =>
     public Exp newArrayLookup(Exp e1, int pos, Exp e2)
     {
@@ -259,6 +357,27 @@ public class MJGrammar implements MessageObject, FilePosObject
     {
         return new IntLit(pos, n);
     }
+
+    //: <expr1> ::= # `true =>
+    public Exp newTrue(int pos) {
+        return new True(pos);
+    }
+
+    //: <expr1> ::= # `false =>
+    public Exp newFalse(int pos) {
+        return new False(pos);
+    }
+
+    //: <expr1> ::= # `null =>
+    public Exp newNull(int pos){
+        return new Null(pos);
+    }
+
+    //: <expr1> ::= # `this =>
+    public Exp newThis(int pos) {
+        return new This(pos);
+    }
+
 
     //================================================================
     // Lexical grammar for filtered language begins here: DO NOT
