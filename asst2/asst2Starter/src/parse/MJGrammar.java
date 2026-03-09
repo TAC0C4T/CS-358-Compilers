@@ -77,6 +77,16 @@ public class MJGrammar implements MessageObject, FilePosObject
         return new Program(pos, new ClassDeclList(vec));
     }
 
+    // //: <class decl> ::= `class # ID <extends>? `{ <decl in class>* `} =>
+    // public ClassDecl createClassDecl(int pos, String name, String ext, List<Decl> vec) {
+    //     if(ext == null) {
+    //         return new ClassDecl(pos, name, "Object", new DeclList(vec));
+    //     } else {
+    //         return new ClassDecl(pos, name, ext, new DeclList(vec));
+    //     }
+    // }
+    // //: <extends> ::= `extends ID => pass
+
     //: <class decl> ::= `class # ID `{ <decl in class>* `} =>
     public ClassDecl createClassDecl(int pos, String name, List<Decl> vec)
     {
