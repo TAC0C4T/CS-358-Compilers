@@ -52,54 +52,12 @@ public class Sem1Visitor extends Visitor
     public Object visit(ClassDecl n) {
         if (classEnv.containsKey(n.name)) {
             errorMsg.error(n.pos, CompError.DuplicateClass(n.name));
-            return null;
 
         } else {
             classEnv.put(n.name, n);
         }
-        currentClass = n;
         n.decls.accept(this);
-        currentClass = null;
         return null;
     }
-
-    // @Override
-    // public Object visit(MethodDecl m) {
-    //     if (currentClass.methodEnv.containsKey(m.name)) {
-    //         errorMsg.error(m.pos, CompError.DuplicateMethod(m.name));
-    //     } else {
-    //         currentClass.methodEnv.put(m.name, m);
-    //     }
-    //     return null;
-    // }
-
-    @Override
-    public Object visit(MethodDeclVoid m) {
-        if (currentClass.methodEnv.containsKey(m.name)) {
-            errorMsg.error(m.pos, CompError.DuplicateMethod(m.name));
-        } else {
-            currentClass.methodEnv.put(m.name, m);
-        }
-        return null;
-    }
-    @Override
-    public Object visit(MethodDeclNonVoid m) {
-        if (currentClass.methodEnv.containsKey(m.name)) {
-            errorMsg.error(m.pos, CompError.DuplicateMethod(m.name));
-        } else {
-            currentClass.methodEnv.put(m.name, m);
-        }
-        return null;
-    }
-    @Override
-    public Object visit(FieldDecl f) {
-        if (currentClass.fieldEnv.containsKey(f.name)) {
-            errorMsg.error(f.pos, CompError.DuplicateField(f.name));
-        } else {
-            currentClass.fieldEnv.put(f.name, f);
-        }
-        return null;
-    }
-
 
 }
