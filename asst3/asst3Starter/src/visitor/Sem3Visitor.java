@@ -104,7 +104,14 @@ public class Sem3Visitor extends Visitor
         init = new HashSet<String>();
         m.params.accept(this);
         m.stmts.accept(this);
+        m.rtnExp.accept(this);
         localEnv = savedEnv;
+        return null;
+    }
+
+    @Override
+    public Object visit(NewObject n) {
+        n.objType.accept(this);
         return null;
     }
 
@@ -123,15 +130,43 @@ public class Sem3Visitor extends Visitor
         return null;   
     }
 
+    @Override
+    public Object visit(FieldAccess f) {
+        f.exp.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object visit(FieldDecl f) {
+        if(f.name.equals("length")) {
+            errorMsg.error(f.pos, CompError.IllegalLength());
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(Cast c) {
+        c.castType.accept(this);
+        c.exp.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object visit(InstanceOf i) {
+        i.exp.accept(this);
+        i.type.accept(this);
+        return null;
+    }
+
     
     @Override
-    public Object visit(IDType n){
-        ClassDecl classD = classEnv.get(n.name);
+    public Object visit(IDType i){
+        ClassDecl classD = classEnv.get(i.name);
         if(classD == null){
-            errorMsg.error(n.pos, CompError.UndefinedClass(n.name));
+            errorMsg.error(i.pos, CompError.UndefinedClass(i.name));
         }
         else{
-            n.link = classD;
+            i.link = classD;
         }
         return null;
     }
@@ -143,15 +178,17 @@ public class Sem3Visitor extends Visitor
                 errorMsg.error(e.pos, CompError.UninitializedVariable(e.name));
             }
             e.link = localEnv.get(e.name);
-        } else if (currentClass.fieldEnv.containsKey(e.name)){
+        } else if (currentClass != null && currentClass.fieldEnv.containsKey(e.name)){
             e.link = currentClass.fieldEnv.get(e.name);
-        } else {
+        } else if (currentClass != null) {
             FieldDecl sup = superRecurseIDExp(currentClass, e.name);
             if (sup != null) {
                 e.link = sup;
             } else {
                 errorMsg.error(e.pos, CompError.UndefinedVariable(e.name));
             }
+        } else {
+            errorMsg.error(e.pos, CompError.UndefinedVariable(e.name));
         }
         return null;
     }
@@ -164,6 +201,38 @@ public class Sem3Visitor extends Visitor
             return c.fieldEnv.get(name);
         }
         return superRecurseIDExp(c.superLink, name);
+    }
+
+    @Override
+    public Object visit(Switch n) {
+        n.exp.accept(this);
+        breakTargetStack.push(n);
+        HashMap<String, VarDecl> savedEnv = new HashMap<>(localEnv);
+        HashSet<String> savedInit = new HashSet<>(init);
+        
+        for (int i = 0; i < n.stmts.size(); i++) {
+            Stmt s = n.stmts.get(i);
+            s.accept(this);
+            if (s instanceof Break) {
+                localEnv = new HashMap<>(savedEnv);
+                init = new HashSet<>(savedInit);
+            }
+        }
+        breakTargetStack.pop();
+        localEnv = savedEnv;
+        init = savedInit;
+        return null;
+    }
+
+    @Override
+    public Object visit(Case c) {
+        c.exp.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object visit(Default d) {
+        return null;
     }
 
     @Override

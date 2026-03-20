@@ -52,8 +52,6 @@ public class Sem1Visitor extends Visitor
     public Object visit(ClassDecl n) {
         if (classEnv.containsKey(n.name)) {
             errorMsg.error(n.pos, CompError.DuplicateClass(n.name));
-            return null;
-
         } else {
             classEnv.put(n.name, n);
         }
@@ -78,6 +76,7 @@ public class Sem1Visitor extends Visitor
         if (currentClass.methodEnv.containsKey(m.name)) {
             errorMsg.error(m.pos, CompError.DuplicateMethod(m.name));
         } else {
+            m.classDecl = currentClass;
             currentClass.methodEnv.put(m.name, m);
         }
         return null;
@@ -87,6 +86,7 @@ public class Sem1Visitor extends Visitor
         if (currentClass.methodEnv.containsKey(m.name)) {
             errorMsg.error(m.pos, CompError.DuplicateMethod(m.name));
         } else {
+            m.classDecl = currentClass;
             currentClass.methodEnv.put(m.name, m);
         }
         return null;

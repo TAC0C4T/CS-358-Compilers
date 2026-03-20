@@ -32,6 +32,9 @@ public class Sem2Visitor extends Visitor
 
     @Override
     public Object visit(ClassDecl c) {
+        if (c.pos == -1) {
+            return null;
+        }
         if (c.superName == null || c.superName.equals("")) {
             return null;
         }
