@@ -89,5 +89,495 @@ public class Sem4Visitor extends Visitor
         return Int;
     }
 
+    public Object visit(Minus m)
+    {
+        Type t1 = (Type)m.left.accept(this);
+        Type t2 = (Type)m.right.accept(this);
+        if(t1 == null || !t1.isInt())
+        {
+            errorMsg.error(m.pos, CompError.TypeMismatch(t1, Int));
+        }
+        else if(t2 == null || !t2.isInt())
+        {
+            errorMsg.error(m.pos, CompError.TypeMismatch(t2, Int));
+        }
+        m.type = Int;
+        return Int;
+    }
+
+    public Object visit(Times t)
+    {
+        Type t1 = (Type)t.left.accept(this);
+        Type t2 = (Type)t.right.accept(this);
+        if(t1 == null || !t1.isInt())
+        {
+            errorMsg.error(t.pos, CompError.TypeMismatch(t1, Int));
+        }
+        else if(t2 == null || !t2.isInt())
+        {
+            errorMsg.error(t.pos, CompError.TypeMismatch(t2, Int));
+        }
+        t.type = Int;
+        return Int;
+    }
+
+    public Object visit(Divide d) {
+        Type t1 = (Type)d.left.accept(this);
+        Type t2 = (Type)d.right.accept(this);
+        if(t1 == null || !t1.isInt())
+        {
+            errorMsg.error(d.pos, CompError.TypeMismatch(t1, Int));
+        }
+        else if(t2 == null || !t2.isInt())
+        {
+            errorMsg.error(d.pos, CompError.TypeMismatch(t2, Int));
+        }
+        d.type = Int;
+        return Int;
+    }
+
+    public Object visit (Remainder r) {
+        Type t1 = (Type)r.left.accept(this);
+        Type t2 = (Type)r.right.accept(this);
+        if(!t1.isInt())
+        {
+            errorMsg.error(r.pos, CompError.TypeMismatch(t1, Int));
+        }
+        else if(!t2.isInt())
+        {
+            errorMsg.error(r.pos, CompError.TypeMismatch(t2, Int));
+        }
+        r.type = Int;
+        return Int;
+    }
+
+    public Object visit (LessThan l) {
+        Type t1 = (Type)l.left.accept(this);
+        Type t2 = (Type)l.right.accept(this);
+        if(!t1.isInt()) {
+            errorMsg.error(l.pos, CompError.TypeMismatch(t1, Int));
+        }
+        if(!t2.isInt()) {
+            errorMsg.error(l.pos, CompError.TypeMismatch(t2, Int));
+        }
+        l.type = Bool;
+        return Bool;
+    }
+
+    public Object visit (GreaterThan g) {
+        Type t1 = (Type)g.left.accept(this);
+        Type t2 = (Type)g.right.accept(this);
+        if(!t1.isInt()) {
+            errorMsg.error(g.pos, CompError.TypeMismatch(t1, Int));
+        }
+        if(!t2.isInt()) {
+            errorMsg.error(g.pos, CompError.TypeMismatch(t2, Int));
+        }
+        g.type = Bool;
+        return Bool;
+    }
+
+    public Object visit(Equals e) {
+        Type t1 = (Type)e.left.accept(this);
+        Type t2 = (Type)e.right.accept(this);
+        if (t1 == null || t2 == null || t1.isError() || t2.isError()) {
+            e.type = Bool;
+            return Bool;
+        }
+
+        if  (t1.isVoid() || t2.isVoid()) {
+            e.type = Error;
+            return Error;
+        }
+        
+        if (!isCompatible(t1, t2)) {
+            errorMsg.error(e.pos, CompError.IncompatibleType(t1, t2));
+            e.type = Error;
+            return Error;
+        }
+        e.type = Bool;
+        return Bool;
+    }
+
+    public Object visit (And a) {
+        Type t1 = (Type)a.left.accept(this);
+        Type t2 = (Type)a.right.accept(this);
+        if(!t1.isBoolean()) {
+            errorMsg.error(a.pos, CompError.IncompatibleType(t1, Bool));
+            a.type = Error;
+            return Error;
+        }
+        else if(!t2.isBoolean()) {
+            errorMsg.error(a.pos, CompError.IncompatibleType(t2, Bool));
+            a.type = Error;
+            return Error;
+        }
+        a.type = Bool;
+        return Bool;
+    }
+
+    public Object visit (Or o) {
+        Type t1 = (Type)o.left.accept(this);
+        Type t2 = (Type)o.right.accept(this);
+        if(!t1.isBoolean()) {
+            errorMsg.error(o.pos, CompError.IncompatibleType(t1, Bool));
+            o.type = Error;
+            return Error;
+        }
+        else if(!t2.isBoolean()) {
+            errorMsg.error(o.pos, CompError.IncompatibleType(t2, Bool));
+            o.type = Error;
+            return Error;
+        }
+        o.type = Bool;
+        return Bool;
+    }
+
+    public Object visit(Not n) {
+        Type t = (Type)n.exp.accept(this);
+        if(!t.isBoolean()) {
+            errorMsg.error(n.pos, CompError.TypeMismatch(t, Bool));
+            n.type = Error;
+            return Error;
+        }
+        n.type = Bool;
+        return Bool;
+    }
+
+    @Override
+    public Object visit(ClassDecl c) {
+        ClassDecl prevClass = currentClass;
+        IDType prevCurrentType = currentType;
+        IDType prevSuperType = superType;
+
+        currentClass = c;
+        currentType = new IDType(c.pos, c.name);
+        currentType.link = c;
+
+        if (c.superLink != null) {
+            superType = new IDType(c.pos, c.superLink.name);
+            superType.link = c.superLink;
+        } else {
+            superType = null;
+        }
+
+        c.decls.accept(this);
+
+        currentClass = prevClass;
+        currentType = prevCurrentType;
+        superType = prevSuperType;
+        return null;
+    }
+
+    @Override
+    public Object visit(VarDecl v) {
+        v.type.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object visit(MethodDeclNonVoid m) {
+        m.params.accept(this);
+        if (m.superMethod != null) {
+            m.superMethod.accept(this);
+        }
+
+        m.stmts.accept(this);
+        if (m.rtnExp != null) {
+            Type rtnType = (Type)m.rtnExp.accept(this);
+            if (!isCompatible(rtnType, m.rtnType)) {
+                errorMsg.error(m.rtnExp.pos, CompError.TypeMismatch(rtnType, m.rtnType));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(MethodDeclVoid m) {
+        m.params.accept(this);
+        if (m.superMethod != null) {
+            m.superMethod.accept(this);
+        }
+        m.stmts.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object visit(ParamDecl p) {
+        p.type.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object visit(FieldDecl f) {
+        f.type.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object visit(LocalVarDecl v) {
+        v.type.accept(this);
+        v.initExp.accept(this);
+        if (!isCompatible(v.initExp.type, v.type)) {
+            errorMsg.error(v.pos, CompError.TypeMismatch(v.initExp.type, v.type));
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(True t) {
+        t.type = Bool;
+        return Bool;
+    }
+
+    @Override
+    public Object visit(False f) {
+        f.type = Bool;
+        return Bool;
+    }
+
+    @Override
+    public Object visit(Null n) {
+        n.type = Null;
+        return Null;
+    }
+
+    @Override
+    public Object visit(Super s) {
+        s.type = superType;
+        return superType;
+    }
+
+    @Override
+    public Object visit(This t) {
+        t.type = currentType;
+        return currentType;
+    }
+
+    @Override
+    public Object visit(IDExp e) {
+        e.type = e.link.type;
+        if (e.type == null){
+            errorMsg.error(e.pos, CompError.Assignment());
+            e.type = Error;
+            return Error;
+        }
+        return e.type;
+    }
+
+    @Override
+    public Object visit(StringLit s) {
+        s.type = StringType;
+        return StringType;
+    }
+
+    @Override
+    public Object visit(ArrayLookup e) {
+        Type arrType = (Type)e.arrExp.accept(this);
+        Type idxType = (Type)e.idxExp.accept(this);
+
+        if(arrType == null || !arrType.isArray()) {
+            errorMsg.error(e.pos, CompError.ArrayType());
+            e.type = Error;
+            return Error;
+        }
+
+        if(idxType == null || !idxType.isInt()) {
+            errorMsg.error(e.pos, CompError.TypeMismatch(idxType, Int));
+            e.type = Error;
+            return Error;
+        }
+
+        e.type = ((ArrayType)arrType).baseType;
+        return e.type;
+    }
+
+    @Override
+    public Object visit(FieldAccess e) {
+        Type objType = (Type)e.exp.accept(this);
+
+        if (objType == null) {
+            errorMsg.error(e.pos, CompError.UndefinedField(e.varName, objType));
+            e.type = Error;
+            return Error;
+        }
+
+        if (objType.isError()) {
+            e.type = Error;
+            return Error;
+        }
+
+        if (!objType.isID()) {
+            errorMsg.error(e.pos, CompError.UndefinedField(e.varName, objType));
+            e.type = Error;
+            return Error;
+        }
+
+        ClassDecl cls = ((IDType)objType).link;
+        FieldDecl fieldDecl = null;
+        for (ClassDecl cur = cls; cur != null && fieldDecl == null; cur = cur.superLink) {
+            fieldDecl = cur.fieldEnv.get(e.varName);
+        }
+
+        if (fieldDecl == null) {
+            errorMsg.error(e.pos, CompError.UndefinedField(e.varName, objType));
+            e.type = Error;
+            return Error;
+        }
+
+        e.varDec = fieldDecl;
+        e.type = fieldDecl.type;
+        return e.type;
+    }
+
+    @Override
+    public Object visit(Call c) {
+        Type objType = (Type)c.obj.accept(this);
+        c.args.accept(this);
+
+        if (objType == null) {
+            errorMsg.error(c.pos, CompError.UndefinedMethod(c.methName, objType));
+            c.type = Error;
+            return Error;
+        }
+
+        if (objType.isError()) {
+            c.type = Error;
+            return Error;
+        }
+
+        if (!objType.isID()) {
+            errorMsg.error(c.pos, CompError.UndefinedMethod(c.methName, objType));
+            c.type = Error;
+            return Error;
+        }
+
+        if (c.methodLink == null) {
+            ClassDecl cls = ((IDType)objType).link;
+            for (ClassDecl cur = cls; cur != null && c.methodLink == null; cur = cur.superLink) {
+                c.methodLink = cur.methodEnv.get(c.methName);
+            }
+        }
+
+        if (c.methodLink == null) {
+            errorMsg.error(c.pos, CompError.UndefinedMethod(c.methName, objType));
+            c.type = Error;
+            return Error;
+        }
+
+        if (c.methodLink instanceof MethodDeclNonVoid) {
+            c.type = ((MethodDeclNonVoid)c.methodLink).rtnType;
+        } else {
+            c.type = Void;
+        }
+        return c.type;
+    }
+
+    @Override
+    public Object visit(Cast c) {
+        Type objType = (Type)c.exp.accept(this);
+        if (objType == null || objType.isError()) {
+            c.type = c.castType;
+            return c.castType;
+        }
+
+        if (!objType.isID() && !objType.isNull()) {
+            errorMsg.error(c.pos, CompError.IncompatibleType(objType, c.castType));
+        }
+        c.type = c.castType;
+        return c.castType;
+
+    }
+
+    @Override
+    public Object visit(InstanceOf i) {
+        Type objType = (Type)i.exp.accept(this);
+        Type checkType = i.checkType;
+        if (objType == null || checkType == null) {
+            errorMsg.error(i.pos, CompError.TypeMismatch(objType, checkType));
+            i.type = Error;
+            return Error;
+        }
+        if(objType.isError() || checkType.isError()) {
+            i.type = Error;
+            return Error;
+        }
+        i.type = Bool;
+        return Bool;
+    }
+
+    @Override
+    public Object visit(NewArray n) {
+        Type objType = n.objType;
+        Type sizeType = (Type)n.sizeExp.accept(this);
+
+        if(sizeType == null) {
+            n.type = Error;
+            return Error;
+        }
+
+        if (!sizeType.isInt()) {
+            errorMsg.error(n.sizeExp.pos, CompError.TypeMismatch(sizeType, Int));
+            n.type = Error;
+            return Error;
+        }
+
+        if(!sizeType.name().equals(Int.name())) {
+            errorMsg.error(n.pos, CompError.TypeMismatch(sizeType, Int));
+            n.type = Error;
+            return Error;
+        }
+
+        if (n.sizeExp instanceof IntLit && ((IntLit)n.sizeExp).val < 0) {
+            errorMsg.error(n.pos, CompError.IllegalLength());
+            n.type = Error;
+            return Error;
+        }
+        n.type = new ArrayType(n.pos, objType);
+        return n.type;
+
+    }
+
+
+    @Override
+    public Object visit(NewObject n) {
+        if (n.objType == null || n.objType.link == null) {
+            n.type = Error;
+            return Error;
+        }
+
+        n.type = n.objType;
+        return n.type;
+    }
+
+    public Object visit(Assign a) {
+    Type lhs = (Type)a.lhs.accept(this);
+    Type rhs = (Type)a.rhs.accept(this);
+    if (lhs == null || lhs.isError()) {
+        return null;
+    }
+    if (rhs == null || rhs.isError()){
+        return null;
+    } 
+    if (!isCompatible(rhs, lhs)) {
+        errorMsg.error(a.pos, CompError.TypeMismatch(rhs, lhs));
+    }
+    return null;
+}
+
+    boolean isCompatible(Type actual, Type expected) {
+        if (actual == null || actual.isError()) return true;
+        if (expected == null || expected.isError()) return true;
+        if (actual.isNull() && (expected.isID() || expected.isArray())) return true;
+        if (actual.isID() && expected.isID()) {
+            ClassDecl expectedClass = ((IDType)expected).link;
+            for (ClassDecl cur = ((IDType)actual).link; cur != null; cur = cur.superLink) {
+                if (cur == expectedClass) return true;
+            }
+            return false;
+        }
+        return actual.name().equals(expected.name());
+    }
+
 }
 

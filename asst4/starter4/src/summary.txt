@@ -1,0 +1,27 @@
+TESTS                   : (crash fail mismatch succeede) / total
+if/while statements          : (    0   12        0        7) /    19
+operators                    : (    0   25      496       34) /   555
+array index                  : (    0    0        5        0) /     5
+simple expressions           : (    0    0        0       13) /    13
+assignment                   : (    0   13       16        4) /    33
+new Object                   : (    0    5        2        0) /     7
+method call result           : (    0    4        7        8) /    19
+instance variables           : (    0    4       20       36) /    60
+total type errors            : (    0    0        1        0) /     1
+local variables              : (    0    6        4        4) /    14
+casting                      : (    0    8        2        0) /    10
+return type                  : (    0   15       28        6) /    49
+array casting                : (    0   11        0        0) /    11
+subclasses                   : (    0    9        0        0) /     9
+new array                    : (    0    3        5        0) /     8
+methods                      : (    0   68      103       13) /   184
+equivalence                  : (    0    5       22        0) /    27
+local variable initializers  : (    0   10       21        4) /    35
+
+EXTRA CREDIT            : (crash fail mismatch succeede) / total
+array index warning          : (    0    2        2        0) /     4
+unreachable statements       : (    0    0       13        6) /    19
+switch statements            : (    0    8        0        9) /    17
+unused fields and methods    : (    0    0        3        7) /    10
+
+Total Score:  26 / 100
