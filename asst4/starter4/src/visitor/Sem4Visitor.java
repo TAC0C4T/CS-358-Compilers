@@ -292,6 +292,9 @@ public class Sem4Visitor extends Visitor
         m.stmts.accept(this);
         if (m.rtnExp != null) {
             Type rtnType = (Type) m.rtnExp.accept(this);
+            if (rtnType == null) {
+                rtnType = m.rtnExp.type;
+            }
             if (rtnType != null && !rtnType.isError() && !isCompatible(rtnType, m.rtnType)) {
                 errorMsg.error(m.rtnExp.pos, CompError.TypeMismatch(rtnType, m.rtnType));
             }
@@ -410,6 +413,18 @@ public class Sem4Visitor extends Visitor
 
         e.type = ((ArrayType)arrType).baseType;
         return e.type;
+    }
+
+    @Override
+    public Object visit(ArrayLength a) {
+        Type expType = (Type)a.exp.accept(this);
+        if (expType == null || !expType.isArray()) {
+            errorMsg.error(a.pos, CompError.ArrayType());
+            a.type = Error;
+            return Error;
+        }
+        a.type = Int;
+        return Int;
     }
 
     @Override
