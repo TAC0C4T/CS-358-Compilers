@@ -671,20 +671,9 @@ public class Sem4Visitor extends Visitor
         }
 
         if (actual.isID() && expected.isID()) {
-            IDType actualId = (IDType)actual;
-            IDType expectedId = (IDType)expected;
-
-            if (actualId.name.equals(expectedId.name)) {
-                return true;
-            }
-            if ("Object".equals(expectedId.name)) {
-                return true;
-            }
-
-            ClassDecl expectedClass = expectedId.link;
-            for (ClassDecl curr = actualId.link; curr != null; curr = curr.superLink) {
+            ClassDecl expectedClass = ((IDType)expected).link;
+            for (ClassDecl curr = ((IDType)actual).link; curr != null; curr = curr.superLink) {
                 if (curr == expectedClass) return true;
-                if (curr.name != null && curr.name.equals(expectedId.name)) return true;
             }
             return false;
         }
