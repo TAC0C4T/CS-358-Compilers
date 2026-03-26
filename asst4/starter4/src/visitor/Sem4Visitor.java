@@ -93,12 +93,10 @@ public class Sem4Visitor extends Visitor
     {
         Type t1 = (Type)m.left.accept(this);
         Type t2 = (Type)m.right.accept(this);
-        if(t1 == null || !t1.isInt())
-        {
+        if(t1 == null || !t1.isInt()) {
             errorMsg.error(m.pos, CompError.TypeMismatch(t1, Int));
         }
-        else if(t2 == null || !t2.isInt())
-        {
+        else if(t2 == null || !t2.isInt()) {
             errorMsg.error(m.pos, CompError.TypeMismatch(t2, Int));
         }
         m.type = Int;
@@ -109,12 +107,10 @@ public class Sem4Visitor extends Visitor
     {
         Type t1 = (Type)t.left.accept(this);
         Type t2 = (Type)t.right.accept(this);
-        if(t1 == null || !t1.isInt())
-        {
+        if(t1 == null || !t1.isInt()) {
             errorMsg.error(t.pos, CompError.TypeMismatch(t1, Int));
         }
-        else if(t2 == null || !t2.isInt())
-        {
+        else if(t2 == null || !t2.isInt()) {
             errorMsg.error(t.pos, CompError.TypeMismatch(t2, Int));
         }
         t.type = Int;
@@ -124,12 +120,10 @@ public class Sem4Visitor extends Visitor
     public Object visit(Divide d) {
         Type t1 = (Type)d.left.accept(this);
         Type t2 = (Type)d.right.accept(this);
-        if(t1 == null || !t1.isInt())
-        {
+        if(t1 == null || !t1.isInt()) {
             errorMsg.error(d.pos, CompError.TypeMismatch(t1, Int));
         }
-        else if(t2 == null || !t2.isInt())
-        {
+        else if(t2 == null || !t2.isInt()) {
             errorMsg.error(d.pos, CompError.TypeMismatch(t2, Int));
         }
         d.type = Int;
@@ -139,12 +133,10 @@ public class Sem4Visitor extends Visitor
     public Object visit (Remainder r) {
         Type t1 = (Type)r.left.accept(this);
         Type t2 = (Type)r.right.accept(this);
-        if(!t1.isInt())
-        {
+        if(!t1.isInt()) {
             errorMsg.error(r.pos, CompError.TypeMismatch(t1, Int));
         }
-        else if(!t2.isInt())
-        {
+        else if(!t2.isInt()) {
             errorMsg.error(r.pos, CompError.TypeMismatch(t2, Int));
         }
         r.type = Int;
@@ -190,7 +182,7 @@ public class Sem4Visitor extends Visitor
             return Error;
         }
         
-        if (!isCompatible(t1, t2)) {
+        if (!isCompatible(t1, t2) && !isCompatible(t2, t1)) {
             errorMsg.error(e.pos, CompError.IncompatibleType(t1, t2));
             e.type = Error;
             return Error;
@@ -279,13 +271,28 @@ public class Sem4Visitor extends Visitor
     public Object visit(MethodDeclNonVoid m) {
         m.params.accept(this);
         if (m.superMethod != null) {
-            m.superMethod.accept(this);
+            if (m.superMethod instanceof MethodDeclVoid) {
+                errorMsg.error(m.pos, CompError.ReturnOverride());
+            } else if (m.superMethod instanceof MethodDeclNonVoid) {
+                MethodDeclNonVoid sup = (MethodDeclNonVoid) m.superMethod;
+                if (!m.rtnType.name().equals(sup.rtnType.name())) {
+                    errorMsg.error(m.pos, CompError.ReturnOverride());
+                }
+                if (m.params.size() != sup.params.size()) {
+                    errorMsg.error(m.pos, CompError.NumArgsOverride());
+                } else {
+                    for (int i = 0; i < m.params.size(); i++) {
+                        if (!m.params.get(i).type.name().equals(sup.params.get(i).type.name())) {
+                            errorMsg.error(m.pos, CompError.ArgTypeOverride());
+                        }
+                    }
+                }
+            }
         }
-
         m.stmts.accept(this);
         if (m.rtnExp != null) {
-            Type rtnType = (Type)m.rtnExp.accept(this);
-            if (!isCompatible(rtnType, m.rtnType)) {
+            Type rtnType = (Type) m.rtnExp.accept(this);
+            if (rtnType != null && !rtnType.isError() && !isCompatible(rtnType, m.rtnType)) {
                 errorMsg.error(m.rtnExp.pos, CompError.TypeMismatch(rtnType, m.rtnType));
             }
         }
@@ -296,7 +303,20 @@ public class Sem4Visitor extends Visitor
     public Object visit(MethodDeclVoid m) {
         m.params.accept(this);
         if (m.superMethod != null) {
-            m.superMethod.accept(this);
+            if (m.superMethod instanceof MethodDeclVoid) {
+                MethodDeclVoid sup = (MethodDeclVoid) m.superMethod;
+                if (m.params.size() != sup.params.size()) {
+                    errorMsg.error(m.pos, CompError.NumArgsOverride());
+                } else {
+                    for (int i = 0; i < m.params.size(); i++) {
+                        if (!m.params.get(i).type.name().equals(sup.params.get(i).type.name())) {
+                            errorMsg.error(m.pos, CompError.ArgTypeOverride());
+                        }
+                    }
+                }
+            } else if (m.superMethod instanceof MethodDeclNonVoid) {
+                errorMsg.error(m.pos, CompError.ReturnOverride());
+            }
         }
         m.stmts.accept(this);
         return null;
@@ -564,20 +584,59 @@ public class Sem4Visitor extends Visitor
     }
     return null;
 }
+    public Object visit(If i) {
+        Type condType = (Type) i.exp.accept(this);
+        if (condType == null || !condType.isBoolean()) {
+            errorMsg.error(i.pos, CompError.TypeMismatch(condType, Bool));
+        }
+        i.trueStmt.accept(this);
+        i.falseStmt.accept(this);
+        return null;
+    }
+
+    public Object visit(While w) {
+        Type condType = (Type) w.exp.accept(this);
+        if (condType == null || !condType.isBoolean()) {
+            errorMsg.error(w.pos, CompError.TypeMismatch(condType, Bool));
+        }
+        w.body.accept(this);
+        return null;
+    }
 
     boolean isCompatible(Type actual, Type expected) {
         if (actual == null || actual.isError()) return true;
         if (expected == null || expected.isError()) return true;
         if (actual.isNull() && (expected.isID() || expected.isArray())) return true;
+
+        if (actual.isArray() && expected.isID()) {
+            IDType expectedId = (IDType)expected;
+            if (expectedId.link != null && "Object".equals(expectedId.link.name)) {
+                return true;
+            }
+        }
+
+        if (actual.isArray() && expected.isArray()) {
+            Type actualBase = ((ArrayType)actual).baseType;
+            Type expectedBase = ((ArrayType)expected).baseType;
+
+            if (actualBase.isBoolean() || actualBase.isInt() ||
+                expectedBase.isBoolean() || expectedBase.isInt()) {
+                return actualBase.name().equals(expectedBase.name());
+            }
+
+            return isCompatible(actualBase, expectedBase);
+        }
+
         if (actual.isID() && expected.isID()) {
             ClassDecl expectedClass = ((IDType)expected).link;
-            for (ClassDecl cur = ((IDType)actual).link; cur != null; cur = cur.superLink) {
-                if (cur == expectedClass) return true;
+            for (ClassDecl curr = ((IDType)actual).link; curr != null; curr = curr.superLink) {
+                if (curr == expectedClass) return true;
             }
             return false;
         }
         return actual.name().equals(expected.name());
     }
+
 
 }
 

@@ -1,5 +1,4 @@
 #!/bin/bash
-PASSTHROUGH=""
 
 if [[ "$1" == "-r" ]]; then
 	rm summary.txt output.txt
@@ -8,13 +7,20 @@ if [[ "$1" == "-r" ]]; then
 else
 
 	./comp
+	rm -f outputlocal.txt
+
+	if [[ -n "$1" && "$1" != "-s" ]]; then
+		: > outputlocal.txt
+	fi
 	
 	for file in ../*.java; do
-	if [[ "$1" != "" && "$1" != "-s" ]]; then
-		PASSTHROUGH="$1"
-	fi
+		[ -f "$file" ] || continue
 
-	[ -f "$file" ] && ./run "$file" $PASSTHROUGH
+		if [[ -n "$1" && "$1" != "-s" ]]; then
+			./run "$file" "$1" >> outputlocal.txt
+		else
+			./run "$file"
+		fi
 	done   
 
 	if [[ "$1" == "-s" ]]; then
