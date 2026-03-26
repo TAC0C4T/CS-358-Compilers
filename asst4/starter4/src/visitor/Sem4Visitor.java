@@ -501,8 +501,10 @@ public class Sem4Visitor extends Visitor
             return c.castType;
         }
 
-        if (!objType.isID() && !objType.isNull()) {
+        if (!isReferenceType(objType) || !isReferenceType(c.castType)) {
             errorMsg.error(c.pos, CompError.IncompatibleType(objType, c.castType));
+        } else if (!isCompatible(objType, c.castType) && !isCompatible(c.castType, objType)) {
+            errorMsg.error(c.pos, CompError.TypeMismatch(c.castType, objType));
         }
         c.type = c.castType;
         return c.castType;
@@ -522,6 +524,19 @@ public class Sem4Visitor extends Visitor
             i.type = Error;
             return Error;
         }
+
+        if (!isReferenceType(objType) || !isReferenceType(checkType)) {
+            errorMsg.error(i.pos, CompError.IncompatibleType(objType, checkType));
+            i.type = Error;
+            return Error;
+        }
+
+        if (!objType.isNull() && !isCompatible(objType, checkType) && !isCompatible(checkType, objType)) {
+            errorMsg.error(i.pos, CompError.TypeMismatch(checkType, objType));
+            i.type = Error;
+            return Error;
+        }
+
         i.type = Bool;
         return Bool;
     }
@@ -610,7 +625,8 @@ public class Sem4Visitor extends Visitor
 
         if (actual.isArray() && expected.isID()) {
             IDType expectedId = (IDType)expected;
-            if (expectedId.link != null && "Object".equals(expectedId.link.name)) {
+            if ("Object".equals(expectedId.name) ||
+                (expectedId.link != null && "Object".equals(expectedId.link.name))) {
                 return true;
             }
         }
@@ -635,6 +651,10 @@ public class Sem4Visitor extends Visitor
             return false;
         }
         return actual.name().equals(expected.name());
+    }
+
+    boolean isReferenceType(Type t) {
+        return t != null && (t.isID() || t.isArray() || t.isNull());
     }
 
 
