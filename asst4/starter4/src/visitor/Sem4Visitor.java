@@ -485,6 +485,18 @@ public class Sem4Visitor extends Visitor
             return Error;
         }
 
+        if (c.args.size() != c.methodLink.params.size()) {
+            errorMsg.error(c.pos, CompError.NumArgsOverride());
+        } else {
+            for (int i = 0; i < c.args.size(); i++) {
+                Type argType = c.args.get(i).type;
+                Type paramType = c.methodLink.params.get(i).type;
+                if (argType != null && !argType.isError() && !isCompatible(argType, paramType)) {
+                    errorMsg.error(c.args.get(i).pos, CompError.TypeMismatch(argType, paramType));
+                }
+            }
+        }
+
         if (c.methodLink instanceof MethodDeclNonVoid) {
             c.type = ((MethodDeclNonVoid)c.methodLink).rtnType;
         } else {
