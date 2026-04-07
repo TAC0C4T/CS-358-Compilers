@@ -29,8 +29,30 @@ public class CG2Visitor extends Visitor
         // In order to get == to work correctly,
         // you must create your own version which does account for duplicate
         // strings.
-        StrLitSimpleGenerator.generate(p,  code);
+        //StrLitSimpleGenerator.generate(p,  code);
 
+        code.emit(".data");
+        super.visit(p);
+
+        return null;
+    }
+
+    @Override
+    public Object visit(StringLit s)
+    {
+        StringLit first = stringEnv.get(s.str);
+        if (first != null) {
+            s.uniqueCgRep = first;
+            return null;
+        }
+
+        stringEnv.put(s.str, s);
+        s.uniqueCgRep = s;
+
+        code.emit("strLit" + s.uniqueId + ":");
+        code.emit(".asciiz \"" + s.str + "\"");
+        code.emit(".align 2");
+        
         return null;
     }
 

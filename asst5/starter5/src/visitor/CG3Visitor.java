@@ -27,7 +27,7 @@ public class CG3Visitor extends Visitor
     {
         code.emit("  li $s6, 1");
         code.emit("  li $s7, 0");
-        code.emit("  newObject");
+        code.emit("  jal newObject");
         code.emit("  la $t0, CLASS_Main"); // put Main object on the stack
         code.emit("  sw $t0, -12($s7)");
         code.emit("  addu $sp,$sp,4");
@@ -54,8 +54,8 @@ public class CG3Visitor extends Visitor
 
         // This is a fake main method until you get MethodDeclVoid working.
         // When that's working you should remove these two lines.
-        code.emit("mth_main_Main:");
-        code.emit("  jr $ra");
+//        code.emit("mth_main_Main:");
+//        code.emit("  jr $ra");
 
         // emit code for all the methods in all the class declarations
         n.classDecls.accept(this);
@@ -64,5 +64,34 @@ public class CG3Visitor extends Visitor
         code.flush();
         return null;
     }
+  
+  @Override
+  public Object visit(MethodDecl n)
+  {
+    code.comment(n, "begin");
+    code.emit("mth_" + n.name + "_" + n.classDecl.name + ":");
+    n.stmts.accept(this);
+    code.emit("  jr $ra");
+    code.comment(n, "end");
+    return null;
+  }
+  
+  @Override
+  public Object visit(IntLit n)
+  {
+    code.comment(n, "begin");
+    code.emit("  li $t0, " + n.val);
+//    code.emit("  push $t0");
+    push("$t0");
+    code.comment(n, "end");
+    return null;
+  }
+  
+  public Object push(String n)
+  {
+    code.emit("  subu $sp, $sp, 8");
+    code.emit("  sw $s5, 4($sp)");
+    code.emit("  sw " + n + ", (sp)");
+    return null;
+  }
 }
-

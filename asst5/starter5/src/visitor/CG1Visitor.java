@@ -94,6 +94,66 @@ public class CG1Visitor extends Visitor
      */
     private void setOffsets(ClassDecl c)
     {
+        currentClass = c;
+        if (c == object) {
+            int fieldOffset = -16;
+            int objectFieldOffset = 0;
+            int objectFieldCount = 0;
+            int methodOffset = 0;
+            for (Decl d : c.decls) {
+                if (d instanceof FieldDecl f) {
+                    if (f.type.isInt() || f.type.isBoolean()) {
+                        f.offset = fieldOffset;
+                        fieldOffset -= 4;
+                    } else {
+                        f.offset = objectFieldOffset;
+                        objectFieldOffset += 4;
+                        objectFieldCount++;
+                    }              
+                } else if (d instanceof MethodDecl m) {
+                    m.vtableOffset = methodOffset;
+                    methodOffset += 4;
+
+                    for (int i = 0; i < m.params.size(); i++) {
+                        m.params.get(i).offset = 4 * (m.params.size() - i);
+                    }
+                } 
+            }     
+            c.numDataFields = fieldOffset / 4;
+            c.numObjFields = objectFieldCount;
+        } else {
+            ClassDecl parent = c.superLink;
+            int fieldOffset = parent.numDataFields * 4;
+            int objectFieldOffset = parent.numObjFields * 4;
+            int methodOffset = parent.numObjFields * 4;
+            for (Decl d : c.decls) {
+                if (d instanceof FieldDecl f) {
+                    if (f.type.isInt() || f.type.isBoolean()) {
+                        f.offset = fieldOffset;
+                        fieldOffset -= 4;
+                    } else {
+                        f.offset = objectFieldOffset;
+                        objectFieldOffset += 4;
+                    }
+                } else if (d instanceof MethodDecl m) {
+                    //if (parent.methodEnv.containsKey(m.name)) {
+                    //    m.vtableOffset = parent.methodEnv.get(m.name).vtableOffset;
+                    //} else {
+                        m.vtableOffset = methodOffset;
+                        methodOffset += 4;
+                        for (int i = 0; i < m.params.size(); i++) {
+                            m.params.get(i).offset = 4 * (m.params.size() - i);
+                        }
+                    //}
+                } 
+            }
+            c.numDataFields = fieldOffset / 4;
+            c.numObjFields = objectFieldOffset / 4;
+
+        }
+        for (ClassDecl child : c.subclasses) {
+            setOffsets(child);
+        }
 
     }
    
