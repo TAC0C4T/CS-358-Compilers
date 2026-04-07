@@ -85,7 +85,7 @@ END_CLASS_RunMain: # ClassDecl at 0.0
 dataArrayVTableStart: # IntType at 0.0
 END_CLASS_Object: # ClassDecl at 0.0
 .data
-strLit16:
+strLit_16:
 .asciiz "
 "
 .align 2
@@ -103,28 +103,23 @@ main:
   jal mth_main_Main
   li $v0, 10
   syscall
-# begin: MethodDeclVoid at 2.15; stackHeight = 0
 mth_main_Main:
-# begin: IntLit at 3.21; stackHeight = 0
   li $t0, 321
   subu $sp, $sp, 8
   sw $s5, 4($sp)
-  sw $t0, (sp)
-# end: IntLit at 3.21; stackHeight = 0
-# begin: IntLit at 4.25; stackHeight = 0
+  sw $t0, 0($sp)
   li $t0, 18
   subu $sp, $sp, 8
   sw $s5, 4($sp)
-  sw $t0, (sp)
-# end: IntLit at 4.25; stackHeight = 0
-# begin: IntLit at 5.30; stackHeight = 0
+  sw $t0, 0($sp)
   li $t0, 17
   subu $sp, $sp, 8
   sw $s5, 4($sp)
-  sw $t0, (sp)
-# end: IntLit at 5.30; stackHeight = 0
+  sw $t0, 0($sp)
+  la $t0, strLit_syntaxtree.StringLit@4eec7777
+  subu $sp, $sp, 4
+  sw $t0, ($sp)
   jr $ra
-# end: MethodDeclVoid at 2.15; stackHeight = 0
 ##############################################################
 # MiniJava/UP library for MIPS/Spim -- version that assumes
 #    one-word boolean on stack

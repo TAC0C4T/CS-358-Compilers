@@ -49,7 +49,7 @@ public class CG2Visitor extends Visitor
         stringEnv.put(s.str, s);
         s.uniqueCgRep = s;
 
-        code.emit("strLit" + s.uniqueId + ":");
+        code.emit("strLit_" + s.uniqueId + ":");
         code.emit(".asciiz \"" + s.str + "\"");
         code.emit(".align 2");
         

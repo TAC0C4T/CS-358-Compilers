@@ -85,7 +85,7 @@ END_CLASS_RunMain: # ClassDecl at 0.0
 dataArrayVTableStart: # IntType at 0.0
 END_CLASS_Object: # ClassDecl at 0.0
 .data
-strLit0:
+strLit_0:
 .asciiz "Hello.
 "
 .align 2
@@ -103,10 +103,11 @@ main:
   jal mth_main_Main
   li $v0, 10
   syscall
-# begin: MethodDeclVoid at 2.15; stackHeight = 0
 mth_main_Main:
+  la $t0, strLit_syntaxtree.StringLit@3e3abc88
+  subu $sp, $sp, 4
+  sw $t0, ($sp)
   jr $ra
-# end: MethodDeclVoid at 2.15; stackHeight = 0
 ##############################################################
 # MiniJava/UP library for MIPS/Spim -- version that assumes
 #    one-word boolean on stack

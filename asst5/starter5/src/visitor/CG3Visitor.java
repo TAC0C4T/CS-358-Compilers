@@ -1,9 +1,8 @@
 package visitor;
 
-import syntaxtree.*;
 import errorMsg.*;
 import java.io.*;
-import java.util.List;
+import syntaxtree.*;
 
 public class CG3Visitor extends Visitor
 {
@@ -66,32 +65,96 @@ public class CG3Visitor extends Visitor
     }
   
   @Override
-  public Object visit(MethodDecl n)
-  {
-    code.comment(n, "begin");
+  public Object visit(MethodDecl n) {
     code.emit("mth_" + n.name + "_" + n.classDecl.name + ":");
     n.stmts.accept(this);
     code.emit("  jr $ra");
-    code.comment(n, "end");
     return null;
   }
   
+
+
+
+
+  // Ints and Strings
   @Override
-  public Object visit(IntLit n)
-  {
-    code.comment(n, "begin");
-    code.emit("  li $t0, " + n.val);
-//    code.emit("  push $t0");
-    push("$t0");
-    code.comment(n, "end");
+  public Object visit(IntLit n) {
+    gen(n);
     return null;
   }
+
+
   
-  public Object push(String n)
-  {
+  
+
+  @Override
+  public Object visit(StringLit s) {
+    gen(s);
+    return null;
+  }
+
+  
+
+  //Pseudo Instructions
+
+  public Object gen(StringLit s) {
+    code.emit("  la $t0, strLit_" + s.uniqueCgRep);
+    push(s);
+    return null;
+  }
+
+  public Object push(StringLit s) {
+    code.emit("  subu $sp, $sp, 4");
+    code.emit("  sw $t0, ($sp)");
+    stack++;
+
+    return null;
+  }
+
+  public Object push(IntLit n) {
     code.emit("  subu $sp, $sp, 8");
     code.emit("  sw $s5, 4($sp)");
-    code.emit("  sw " + n + ", (sp)");
+    code.emit("  sw $t0, 0($sp)");
+    stack++;
     return null;
   }
+
+  public Object pop(StringLit n) {
+    code.emit("  lw $t0, ($sp)");
+    code.emit("  addu $sp, $sp, 8");
+    stack--;
+
+    return null;
+  }
+
+  public Object pop(int size) {
+    code.emit("addu $sp, $sp, " + size);
+    stack--;
+    return null;
+  }
+
+  public Object pop(IntLit n) {
+    code.emit("  lw $t0, ($sp)");
+    code.emit("  addu $sp, $sp, 8");
+    stack--;
+
+    return null;
+  }
+
+  public Object gen(IntLit n) {
+    code.emit("  li $t0, " + n.val);
+    push(n);
+    return null;
+  }
+
+
+
+
+
+
+  // Function calls
+  // public Object visit(Call c) {
+    
+  // }
+
 }

@@ -99,16 +99,12 @@ main:
   jal mth_main_Main
   li $v0, 10
   syscall
-# begin: MethodDeclVoid at 2.15; stackHeight = 0
 mth_main_Main:
-# begin: IntLit at 3.14; stackHeight = 0
   li $t0, 345
   subu $sp, $sp, 8
   sw $s5, 4($sp)
-  sw $t0, (sp)
-# end: IntLit at 3.14; stackHeight = 0
+  sw $t0, 0($sp)
   jr $ra
-# end: MethodDeclVoid at 2.15; stackHeight = 0
 ##############################################################
 # MiniJava/UP library for MIPS/Spim -- version that assumes
 #    one-word boolean on stack
