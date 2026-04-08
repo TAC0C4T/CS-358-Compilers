@@ -2,6 +2,9 @@ package visitor;
 
 import errorMsg.*;
 import java.io.*;
+
+import javax.print.attribute.standard.OutputDeviceAssigned;
+
 import syntaxtree.*;
 
 public class CG3Visitor extends Visitor
@@ -45,7 +48,8 @@ public class CG3Visitor extends Visitor
         //Put code for mainStmt here:
         //For now, I'll just make code that calls Main_main
         //but you'll need to replace this.
-        fakeMainStmt();
+        //fakeMainStmt();
+        n.mainStmt.accept(this);
 
         //exit the program
         code.emit("  li $v0, 10");
@@ -71,6 +75,26 @@ public class CG3Visitor extends Visitor
     code.emit("  jr $ra");
     return null;
   }
+
+  @Override
+  public Object visit(CallStmt c) {
+    c.callExp.accept(this);
+    // if (c.callExp.type != null && !c.callExp.type.isVoid()) {
+    //   pop(expSize(c.callExp));
+    // }
+    return null;
+  }
+
+  @Override
+  public Object visit(Block n) {
+    for(Stmt s : n.stmts)
+    {
+        s.accept(this);
+    }
+    return null;
+  }
+
+  
   
 
 
@@ -98,7 +122,8 @@ public class CG3Visitor extends Visitor
   //Pseudo Instructions
 
   public Object gen(StringLit s) {
-    code.emit("  la $t0, strLit_" + s.uniqueCgRep);
+    StringLit rep = s.uniqueCgRep == null ? s : s.uniqueCgRep;
+    code.emit("  la $t0, strLit_" + rep.uniqueId);
     push(s);
     return null;
   }
@@ -119,9 +144,26 @@ public class CG3Visitor extends Visitor
     return null;
   }
 
+  public Object push(String s) {
+    code.emit("  subu $sp, $sp, 4");
+    code.emit("  sw " + s + ", ($sp)");
+    stack++;
+
+    return null;
+  }
+  
+  public Object push(int n) {
+    code.emit("  subu $sp, $sp, 8");
+    code.emit("  sw $s5, 4($sp)");
+    code.emit("  li $t0, " + n);
+    code.emit("  sw $t0, 0($sp)");
+    stack++;
+    return null;
+  }
+
   public Object pop(StringLit n) {
     code.emit("  lw $t0, ($sp)");
-    code.emit("  addu $sp, $sp, 8");
+    code.emit("  addu $sp, $sp, 4");
     stack--;
 
     return null;
@@ -141,11 +183,23 @@ public class CG3Visitor extends Visitor
     return null;
   }
 
+  public Object pop(String s) {
+    code.emit("  lw " + s + ", ($sp)");
+    code.emit("  addu $sp, $sp, 4");
+    stack--;
+
+    return null;
+  }
+
   public Object gen(IntLit n) {
     code.emit("  li $t0, " + n.val);
     push(n);
     return null;
   }
+
+  
+
+
 
 
 
@@ -155,6 +209,125 @@ public class CG3Visitor extends Visitor
   // Function calls
   // public Object visit(Call c) {
     
+  // }
+
+  @Override
+  public Object visit(This n) {
+    push("$s2");
+    //stack++;
+    return null;
+  }
+
+  public Object visit(Null n) {
+    push("$0");
+    //stack++;
+    return null;
+  }
+  
+  public Object visit(True t) {
+    push(1);
+    //stack++;
+    return null;
+  }
+
+  public Object visit(False f) {
+    push("$0");
+    //stack++;
+    return null;
+  }
+
+  public Object visit(Super s) {
+    push("$s2");
+    //stack++;
+    return null;
+  }
+
+  public Object visit(FieldAccess f) {
+    f.exp.accept(this);
+    code.emit("  lw $t0, " + f.varDec.offset + "($t0)");
+    push("$t0");
+    //stack++;
+    return null;
+  }
+
+  // public Object visit( v) {
+  //   code.emit("  lw $t0, " + v.varDec.offset + "($sp)");
+  //   push("$t0");
+  //   //stack++;
+  //   return null;
+  // }
+
+  public Object visit(Plus p) {
+    p.left.accept(this);
+    p.right.accept(this);
+    pop("$t2");
+    pop("$t1");
+    code.emit("  addu $t0, $t1, $t2");
+    push("$t0");
+    return null;
+  }
+
+  public Object visit(Minus m) {
+    m.left.accept(this);
+    m.right.accept(this);
+    pop("$t2");
+    pop("$t1");
+    code.emit("  subu $t0, $t1, $t2");
+    push("$t0");
+    return null;
+  }
+
+  public Object visit(Times t) {
+    t.left.accept(this);
+    t.right.accept(this);
+    pop("$t2");
+    pop("$t1");
+    code.emit("  mul $t0, $t1, $t2");
+    push("$t0");
+    return null;
+  }
+
+  public Object visit(Equals e) {
+    e.left.accept(this);
+    e.right.accept(this);
+    pop("$t2");
+    pop("$t1");
+    code.emit("  seq $t0, $t1, $t2");
+    push("$t0");
+    return null;
+   
+  }
+
+  public Object visit(LessThan l) {
+    l.left.accept(this);
+    l.right.accept(this);
+    pop("$t2");
+    pop("$t1");
+    code.emit("  slt $t0, $t1, $t2");
+    push("$t0");
+    return null;
+  }
+
+  public Object visit(GreaterThan g) {
+    g.left.accept(this);
+    g.right.accept(this);
+    pop("$t2");
+    pop("$t1");
+    code.emit("  sgt $t0, $t1, $t2");
+    push("$t0");
+    return null;
+  }
+
+  public Object visit(Divide d) {
+    d.left.accept(this);
+    d.right.accept(this);
+    code.emit("  jal divide");
+    return null;
+  }
+
+  // @Override
+  // public Object visit(Super n) {
+  //   return visit(new This(n.pos));
   // }
 
 }

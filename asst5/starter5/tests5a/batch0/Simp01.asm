@@ -81,14 +81,6 @@ END_CLASS_Object: # ClassDecl at 0.0
 .globl main
 main:
   jal vm_init
-  li $s6, 1
-  li $s7, 0
-  jal newObject
-  la $t0, CLASS_Main
-  sw $t0, -12($s7)
-  addu $sp,$sp,4
-  move $s2, $s7
-  jal mth_main_Main
   li $v0, 10
   syscall
 mth_main_Main:

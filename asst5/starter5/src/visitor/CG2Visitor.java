@@ -50,7 +50,7 @@ public class CG2Visitor extends Visitor
         s.uniqueCgRep = s;
 
         code.emit("strLit_" + s.uniqueId + ":");
-        code.emit(".asciiz \"" + s.str + "\"");
+        code.emit(".asciiz \"" + s.str.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\t", "\\t").replace("\r", "\\r") + "\"");
         code.emit(".align 2");
         
         return null;

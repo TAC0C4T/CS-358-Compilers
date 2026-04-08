@@ -86,21 +86,12 @@ dataArrayVTableStart: # IntType at 0.0
 END_CLASS_Object: # ClassDecl at 0.0
 .data
 strLit_17:
-.asciiz " ... 
-"
+.asciiz " ... \n"
 .align 2
 .text
 .globl main
 main:
   jal vm_init
-  li $s6, 1
-  li $s7, 0
-  jal newObject
-  la $t0, CLASS_Main
-  sw $t0, -12($s7)
-  addu $sp,$sp,4
-  move $s2, $s7
-  jal mth_main_Main
   li $v0, 10
   syscall
 mth_main_Main:
@@ -112,17 +103,42 @@ mth_main_Main:
   subu $sp, $sp, 8
   sw $s5, 4($sp)
   sw $t0, 0($sp)
+  lw $t2, ($sp)
+  addu $sp, $sp, 4
+  lw $t1, ($sp)
+  addu $sp, $sp, 4
+  addu $t0, $t1, $t2
+  subu $sp, $sp, 4
+  sw $t0, ($sp)
   li $t0, 23
   subu $sp, $sp, 8
   sw $s5, 4($sp)
   sw $t0, 0($sp)
-  la $t0, strLit_syntaxtree.StringLit@3b07d329
+  lw $t2, ($sp)
+  addu $sp, $sp, 4
+  lw $t1, ($sp)
+  addu $sp, $sp, 4
+  subu $t0, $t1, $t2
+  subu $sp, $sp, 4
+  sw $t0, ($sp)
+  la $t0, strLit_17
   subu $sp, $sp, 4
   sw $t0, ($sp)
   li $t0, 29
   subu $sp, $sp, 8
   sw $s5, 4($sp)
   sw $t0, 0($sp)
+  lw $t2, ($sp)
+  addu $sp, $sp, 4
+  lw $t1, ($sp)
+  addu $sp, $sp, 4
+  addu $t0, $t1, $t2
+  subu $sp, $sp, 4
+  sw $t0, ($sp)
+  subu $sp, $sp, 4
+  sw $s2, ($sp)
+  subu $sp, $sp, 4
+  sw $s2, ($sp)
   jr $ra
 ##############################################################
 # MiniJava/UP library for MIPS/Spim -- version that assumes

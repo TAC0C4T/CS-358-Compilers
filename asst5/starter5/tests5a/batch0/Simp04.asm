@@ -86,27 +86,20 @@ dataArrayVTableStart: # IntType at 0.0
 END_CLASS_Object: # ClassDecl at 0.0
 .data
 strLit_0:
-.asciiz "Hello.
-"
+.asciiz "Hello.\n"
 .align 2
 .text
 .globl main
 main:
   jal vm_init
-  li $s6, 1
-  li $s7, 0
-  jal newObject
-  la $t0, CLASS_Main
-  sw $t0, -12($s7)
-  addu $sp,$sp,4
-  move $s2, $s7
-  jal mth_main_Main
   li $v0, 10
   syscall
 mth_main_Main:
-  la $t0, strLit_syntaxtree.StringLit@3e3abc88
+  la $t0, strLit_0
   subu $sp, $sp, 4
   sw $t0, ($sp)
+  subu $sp, $sp, 4
+  sw $s2, ($sp)
   jr $ra
 ##############################################################
 # MiniJava/UP library for MIPS/Spim -- version that assumes

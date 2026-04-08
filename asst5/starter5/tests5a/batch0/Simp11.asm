@@ -89,14 +89,6 @@ END_CLASS_Object: # ClassDecl at 0.0
 .globl main
 main:
   jal vm_init
-  li $s6, 1
-  li $s7, 0
-  jal newObject
-  la $t0, CLASS_Main
-  sw $t0, -12($s7)
-  addu $sp,$sp,4
-  move $s2, $s7
-  jal mth_main_Main
   li $v0, 10
   syscall
 mth_main_Main:
@@ -108,6 +100,15 @@ mth_main_Main:
   subu $sp, $sp, 8
   sw $s5, 4($sp)
   sw $t0, 0($sp)
+  lw $t2, ($sp)
+  addu $sp, $sp, 4
+  lw $t1, ($sp)
+  addu $sp, $sp, 4
+  subu $t0, $t1, $t2
+  subu $sp, $sp, 4
+  sw $t0, ($sp)
+  subu $sp, $sp, 4
+  sw $s2, ($sp)
   jr $ra
 ##############################################################
 # MiniJava/UP library for MIPS/Spim -- version that assumes
