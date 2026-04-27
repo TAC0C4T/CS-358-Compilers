@@ -26,7 +26,7 @@ else
 	if [[ "$1" == "-s" ]]; then
 		ssh rhoades26@cs358.campus.up.edu 'rm asst5/*'
 		rm handin.zip
-		zip handin.zip -j visitor/CG1Visitor.java visitor/CG2Visitor.java visitor/CG3visitor.java
+		zip handin.zip -j visitor/CG1Visitor.java visitor/CG2Visitor.java visitor/CG3Visitor.java
 		scp handin.zip rhoades26@cs358.campus.up.edu:asst5/handin.zip
 	fi
 
