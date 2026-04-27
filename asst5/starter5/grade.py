@@ -71,8 +71,8 @@ def main():
 
     # scrap directory for running the java tests
     scrap.mkdir(exist_ok=True)
-    (src / runMain).copy_into(scrap)
     (src / lib).copy_into(scrap)
+    (src / runMain).copy_into(scrap)
 
     # get each batch of tests and run them
     for batchDir in sorted(Path(argv[1]).iterdir()):
@@ -216,8 +216,8 @@ def printScore(score):
     
     #print end with total score
     print("--------------------------------------------------------------")
-    if ec != 0:
-        print(f"\nTotal score: {int((90*pts + ec) / total)} / 100\n")
+    if has_ec:
+        print(f"\nTotal score: {int(90*pts / total) + ec} / 100\n")
     else:
         print(f"\nTotal score: {int(100*pts / total)} / 100\n")
 

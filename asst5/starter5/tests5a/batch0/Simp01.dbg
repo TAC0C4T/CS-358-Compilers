@@ -8,7 +8,7 @@
   .byte 101 # 'e' # ClassDecl at 0.0
   .byte 99 # 'c' # ClassDecl at 0.0
   .byte 116 # 't' # ClassDecl at 0.0
-3164:CLASS_Object: # ClassDecl at 0.0
+3128:CLASS_Object: # ClassDecl at 0.0
   .word mth_hashCode_Object # MethodDeclNonVoid at 0.0
   .word mth_equals_Object # MethodDeclNonVoid at 0.0
   .word mth_toString_Object # MethodDeclNonVoid at 0.0
@@ -21,7 +21,7 @@
   .byte 105 # 'i' # ClassDecl at 0.0
   .byte 110 # 'n' # ClassDecl at 0.0
   .byte 103 # 'g' # ClassDecl at 0.0
-3184:CLASS_String: # ClassDecl at 0.0
+3148:CLASS_String: # ClassDecl at 0.0
   .word mth_hashCode_String # MethodDeclNonVoid at 0.0
   .word mth_equals_String # MethodDeclNonVoid at 0.0
   .word mth_toString_String # MethodDeclNonVoid at 0.0
@@ -30,13 +30,13 @@
   .word mth_length_String # MethodDeclNonVoid at 0.0
   .word mth_charAt_String # MethodDeclNonVoid at 0.0
   .word mth_compareTo_String # MethodDeclNonVoid at 0.0
-3216:END_CLASS_String: # ClassDecl at 0.0
+3180:END_CLASS_String: # ClassDecl at 0.0
 # ****** class Lib ****** # ClassDecl at 0.0
   .byte 0 # ClassDecl at 0.0
   .byte 204 # 'L' with high bit set # ClassDecl at 0.0
   .byte 105 # 'i' # ClassDecl at 0.0
   .byte 98 # 'b' # ClassDecl at 0.0
-3220:CLASS_Lib: # ClassDecl at 0.0
+3184:CLASS_Lib: # ClassDecl at 0.0
   .word mth_hashCode_Object # MethodDeclNonVoid at 0.0
   .word mth_equals_Object # MethodDeclNonVoid at 0.0
   .word mth_toString_Object # MethodDeclNonVoid at 0.0
@@ -48,7 +48,7 @@
   .word mth_printInt_Lib # MethodDeclVoid at 0.0
   .word mth_intToString_Lib # MethodDeclNonVoid at 0.0
   .word mth_intToChar_Lib # MethodDeclNonVoid at 0.0
-3264:END_CLASS_Lib: # ClassDecl at 0.0
+3228:END_CLASS_Lib: # ClassDecl at 0.0
 # ****** class RunMain ****** # ClassDecl at 0.0
   .byte 0 # ClassDecl at 0.0
   .byte 210 # 'R' with high bit set # ClassDecl at 0.0
@@ -58,24 +58,24 @@
   .byte 97 # 'a' # ClassDecl at 0.0
   .byte 105 # 'i' # ClassDecl at 0.0
   .byte 110 # 'n' # ClassDecl at 0.0
-3272:CLASS_RunMain: # ClassDecl at 0.0
+3236:CLASS_RunMain: # ClassDecl at 0.0
   .word mth_hashCode_Object # MethodDeclNonVoid at 0.0
   .word mth_equals_Object # MethodDeclNonVoid at 0.0
   .word mth_toString_Object # MethodDeclNonVoid at 0.0
-3284:END_CLASS_RunMain: # ClassDecl at 0.0
+3248:END_CLASS_RunMain: # ClassDecl at 0.0
 # ****** class Main ****** # ClassDecl at 1.6
   .byte 205 # 'M' with high bit set # ClassDecl at 1.6
   .byte 97 # 'a' # ClassDecl at 1.6
   .byte 105 # 'i' # ClassDecl at 1.6
   .byte 110 # 'n' # ClassDecl at 1.6
-3288:CLASS_Main: # ClassDecl at 1.6
+3252:CLASS_Main: # ClassDecl at 1.6
   .word mth_hashCode_Object # MethodDeclNonVoid at 0.0
   .word mth_equals_Object # MethodDeclNonVoid at 0.0
   .word mth_toString_Object # MethodDeclNonVoid at 0.0
   .word mth_main_Main # MethodDeclVoid at 2.15
-3304:END_CLASS_Main: # ClassDecl at 1.6
-3304:dataArrayVTableStart: # IntType at 0.0
-3304:END_CLASS_Object: # ClassDecl at 0.0
+3268:END_CLASS_Main: # ClassDecl at 1.6
+3268:dataArrayVTableStart: # IntType at 0.0
+3268:END_CLASS_Object: # ClassDecl at 0.0
 .data
 .text
 .globl main
@@ -617,7 +617,7 @@
 848#    subu $t1,$v0,'0' # convert digit to 0-9 value
 852#    bgeu $t1,$t2,badIntegerFormat # abort if not digit
 853##...sltu $at,$t1,$t2
-857##...beq $at,$zero,3140
+857##...beq $at,$zero,3104
 860#    move $t3,$t1 #
 
     #### at this point, $t3 contains value of the first digit read,
@@ -816,13 +816,13 @@
 1140#    lw $t2,12($sp) # n
 1144#    bgt $zero,$t2,strIndexOutOfBounds
 1145##...slt $at,$t2,$zero
-1149##...bne $at,$zero,3108
+1149##...bne $at,$zero,3072
 1152#    bgt $t2,$t1,strIndexOutOfBounds
 1153##...slt $at,$t1,$t2
-1157##...bne $at,$zero,3108
+1157##...bne $at,$zero,3072
 1160#    bgt $t1,$t0,strIndexOutOfBounds
 1161##...slt $at,$t0,$t1
-1165##...bne $at,$zero,3108
+1165##...bne $at,$zero,3072
 
     # allocate memory
 1168#    subu $s6,$t1,$t2 # # chars in target-string
@@ -1073,7 +1073,7 @@
 1576#    lw $t2,($sp) # index
 1580#    bgeu $t2,$t3,strIndexOutOfBounds
 1581##...sltu $at,$t2,$t3
-1585##...beq $at,$zero,3108
+1585##...beq $at,$zero,3072
 
     # access element
 1588#    lw $t1,-8($t0) # # data words in object
@@ -1429,7 +1429,7 @@
     # if the object-portion size is negative, abort with error
 2092#    blt $s7,$zero arraySizeOutOfBounds
 2093##...slt $at,$s7,$zero
-2097##...bne $at,$zero,3124
+2097##...bne $at,$zero,3088
 
     # mark the fact that we have not yet GC'd for this allocation
 2100#    move $t5,$zero
@@ -1553,20 +1553,20 @@
 2276#    move $t7,$s4
 2280#    la $t6,seg1_start
 2281##...lui $t6,16
-2285##...addiu $t6,$t6,3676
+2285##...addiu $t6,$t6,3632
 2288#    la $s3,seg0_start
 2292#    la $s4,seg0_end
 2293##...lui $s4,16
-2297##...addiu $s4,$s4,3676
+2297##...addiu $s4,$s4,3632
 2300#    sw $zero,cur_seg
 2304#    bne $t0,$zero,skipGc1
 2308#    la $t6,seg0_start
 2312#    la $s3,seg1_start
 2313##...lui $s3,16
-2317##...addiu $s3,$s3,3676
+2317##...addiu $s3,$s3,3632
 2320#    la $s4,seg1_end
 2321##...lui $s4,32
-2325##...addiu $s4,$s4,3676
+2325##...addiu $s4,$s4,3632
 2328#    sw $s5,cur_seg
 2332:  skipGc1:
 2332#    li $t5,0x80000000
@@ -1760,7 +1760,7 @@
 2544#    beq $t1,$zero,gcSkip4
 2548#    la $t0,seg1_start
 2549##...lui $t0,16
-2553##...addiu $t0,$t0,3676
+2553##...addiu $t0,$t0,3632
 
 
 2556:  gcSkip4:
@@ -2029,7 +2029,7 @@
 2880#    la $s3,seg0_start
 2884#    la $s4,seg0_end
 2885##...lui $s4,16
-2889##...addiu $s4,$s4,3676
+2889##...addiu $s4,$s4,3632
     
     # return
 2892#    jr $ra
@@ -2116,10 +2116,10 @@
 2968#    lw $t2,-12($t2) # vtable address
 2972#    bge $t2,$t1,castException
 2973##...slt $at,$t2,$t1
-2977##...beq $at,$zero,3148
+2977##...beq $at,$zero,3112
 2980#    blt $t2,$t0,castException
 2981##...slt $at,$t2,$t0
-2985##...bne $at,$zero,3148
+2985##...bne $at,$zero,3112
     
     # return, leaving object unchanged on stack
 2988:  checkCastReturn:    
@@ -2201,103 +2201,92 @@
 3040#    la $a0,exitString
 3044#    syscall
 
-    # print number of garbage collections
-3048#    li $v0,4 # syscall-code for print-string
-3052#    la $a0,gcCountMsg
-3056#    syscall # print "Number of ..."
-3060#    lw $a0,gcCount # number of GC's
-3064#    li $v0,1 # code for print-int
-3068#    syscall
-3072#    li $v0,4 # syscall-code for print-string
-3076#    la $a0,newlineString
-3080#    syscall # print newline
-
     # terminate execution
-3084#    li $v0,10 #syscall-code for "exit"
-3088#    syscall
+3048#    li $v0,10 #syscall-code for "exit"
+3052#    syscall
 
-3092:outOfHeapMemory:
-3092#    la $a0,heapMemoryMsg
-3096#    j exitError
-3100:divByZeroError:
-3100#    la $a0,divByZeroMsg
-3104#    j exitError
-3108:strIndexOutOfBounds:
-3108#    la $a0,strIndexOutOfBoundsMsg
-3112#    j exitError
-3116:arrayIndexOutOfBounds:
-3116#    la $a0,arrayIndexOutOfBoundsMsg
-3120#    j exitError
-3124:arraySizeOutOfBounds:
-3124#    la $a0,arraySizeOutOfBoundsMsg
-3128#    j exitError
-3132:nullPtrException:
-3132#    la $a0,nullPtrExceptionMsg
-3136#    j exitError
-3140:badIntegerFormat:
-3140#    la $a0,badIntegerFormatMsg
-3144#    j exitError
-3148:castException:
-3148#    la $a0,castExceptionMsg
-3152#    j exitError
+3056:outOfHeapMemory:
+3056#    la $a0,heapMemoryMsg
+3060#    j exitError
+3064:divByZeroError:
+3064#    la $a0,divByZeroMsg
+3068#    j exitError
+3072:strIndexOutOfBounds:
+3072#    la $a0,strIndexOutOfBoundsMsg
+3076#    j exitError
+3080:arrayIndexOutOfBounds:
+3080#    la $a0,arrayIndexOutOfBoundsMsg
+3084#    j exitError
+3088:arraySizeOutOfBounds:
+3088#    la $a0,arraySizeOutOfBoundsMsg
+3092#    j exitError
+3096:nullPtrException:
+3096#    la $a0,nullPtrExceptionMsg
+3100#    j exitError
+3104:badIntegerFormat:
+3104#    la $a0,badIntegerFormatMsg
+3108#    j exitError
+3112:castException:
+3112#    la $a0,castExceptionMsg
+3116#    j exitError
 ############## data section ################
     .data
-3304:hexChars:
+3268:hexChars:
     .ascii "0123456789abcdef"
     .align 2
-3320:cur_seg:
+3284:cur_seg:
     .word 0
 
-3324:lastCharRead:
+3288:lastCharRead:
     .word -2 # -2 => no buffered character
-3328:prevHashConstant:
+3292:prevHashConstant:
     .word 0x2785173c
-3332:gcCount:
+3296:gcCount:
     .word 0
 
-3336:heapMemoryMsg:
+3300:heapMemoryMsg:
     .asciiz "ERROR: out of heap memory\n"
-3363:divByZeroMsg:
+3327:divByZeroMsg:
     .asciiz "ERROR: divide by zero\n"
-3386:strIndexOutOfBoundsMsg:
+3350:strIndexOutOfBoundsMsg:
     .asciiz "ERROR: string index out of bounds\n"
-3421:arrayIndexOutOfBoundsMsg:
+3385:arrayIndexOutOfBoundsMsg:
     .asciiz "ERROR: array index out of bounds\n"
-3455:arraySizeOutOfBoundsMsg:
+3419:arraySizeOutOfBoundsMsg:
     .asciiz "ERROR: array size out of bounds\n"
-3488:nullPtrExceptionMsg:
+3452:nullPtrExceptionMsg:
     .asciiz "ERROR: null-pointer exception\n"
-3519:badIntegerFormatMsg:
+3483:badIntegerFormatMsg:
     .asciiz "ERROR: attempt to read badly formatted integer\n"
-3567:castExceptionMsg:
+3531:castExceptionMsg:
     .asciiz "ERROR: illegal cast\n"
-3588:gcMsg: 
+3552:gcMsg: 
       .asciiz "\nGC!\n"
-3594:gcCountMsg: 
+3558:gcCountMsg: 
       .asciiz "Number of garbage collections: "
 
-3626:nullStr:
+3590:nullStr:
     .asciiz "null"
-3631:trueString:
+3595:trueString:
     .asciiz "true"
-3636:falseString:
+3600:falseString:
     .asciiz "false"
-3642:exitString:
-    .ascii "Program execution completed."
+3606:exitString:
+    .ascii "Program terminated."
     #### "falls through" here
-3670:newlineString:
+3625:newlineString:
     .asciiz "\n"
     
     .align 2
-3672:stack_bottom:
+3628:stack_bottom:
     .word 0
 
 # heapFudge: # temporary fudge amount to exercise GC
 #     .word 0
 
-3676:seg0_start:
+3632:seg0_start:
     .space 0x100000
-1052252:seg0_end:
-1052252:seg1_start:
+1052208:seg0_end:
+1052208:seg1_start:
     .space 0x100000
-2100828:seg1_end:
+2100784:seg1_end:
