@@ -1949,17 +1949,6 @@ exit:
     la $a0,exitString
     syscall
 
-    # print number of garbage collections
-    li $v0,4 # syscall-code for print-string
-    la $a0,gcCountMsg
-    syscall # print "Number of ..."
-    lw $a0,gcCount # number of GC's
-    li $v0,1 # code for print-int
-    syscall
-    li $v0,4 # syscall-code for print-string
-    la $a0,newlineString
-    syscall # print newline
-
     # terminate execution
     li $v0,10 #syscall-code for "exit"
     syscall
@@ -2031,7 +2020,7 @@ trueString:
 falseString:
     .asciiz "false"
 exitString:
-    .ascii "Program execution completed."
+    .ascii "Program terminated."
     #### "falls through" here
 newlineString:
     .asciiz "\n"

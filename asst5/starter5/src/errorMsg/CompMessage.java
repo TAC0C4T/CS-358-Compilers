@@ -1,5 +1,12 @@
 package errorMsg;
 
+/**
+ * A class to represent a message in the compiler.
+ * Each mesage contains a position, message string, and file.
+ * The point is that we can sort all of the messages
+ * based on their position in the source file.
+ * This make more uniform output that can be more easily tested for.
+ */
 public class CompMessage implements Comparable<CompMessage>
 {
     // protected sucks in Java, so these are effectively public.
@@ -14,6 +21,9 @@ public class CompMessage implements Comparable<CompMessage>
         message = m;
     }
 
+    /**
+     * compare message based on their position in the file.
+     */
     public int compareTo(CompMessage m)
     {
         // <
