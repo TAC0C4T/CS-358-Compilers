@@ -1,0 +1,46 @@
+batch0
+got different output for tests5b/batch0/Simp1.java
+got:
+
+
+expected:
+This is a string.
+
+
+got different output for tests5b/batch0/Simp2.java
+got:
+
+
+expected:
+345
+
+got different output for tests5b/batch0/Simp3.java
+got:
+
+
+expected:
+Complete!
+
+
+batch1
+got different output for tests5b/batch1/T09.java
+got:
+
+
+expected:
+true
+
+got different output for tests5b/batch1/T25.java
+got:
+
+
+expected:
+false
+
+got different output for tests5b/batch1/T33.java
+got:
+
+
+expected:
+false
+

@@ -2,9 +2,6 @@ package visitor;
 
 import errorMsg.*;
 import java.io.*;
-
-import javax.print.attribute.standard.OutputDeviceAssigned;
-
 import syntaxtree.*;
 
 public class CG3Visitor extends Visitor
@@ -50,7 +47,6 @@ public class CG3Visitor extends Visitor
         //but you'll need to replace this.
         //fakeMainStmt();
         n.mainStmt.accept(this);
-
         //exit the program
         code.emit("  li $v0, 10");
         code.emit("  syscall");
@@ -67,11 +63,60 @@ public class CG3Visitor extends Visitor
         code.flush();
         return null;
     }
-  
+
   @Override
-  public Object visit(MethodDecl n) {
-    code.emit("mth_" + n.name + "_" + n.classDecl.name + ":");
-    n.stmts.accept(this);
+  public Object visit(ClassDecl n)
+  {
+    n.decls.accept(this);
+    return null;
+  }
+
+  @Override
+  public Object visit(StmtList s) {
+    int startstack = stack;
+    s.accept(this);
+    pop(stack-startstack);
+    return null;
+  }
+
+  @Override
+  public Object visit(Stmt s) {
+    s.accept(this);
+    return null;
+  }
+
+
+
+  
+
+  @Override
+  public Object visit(Exp e) {
+    e.accept(this);
+    return null;
+  }
+
+  @Override
+  public Object visit(MethodDeclVoid m) {
+    code.emit(".globl mth_" + m.name + "_" + m.classDecl.name);
+    code.emit("mth_" + m.name + "_" + m.classDecl.name + ":");
+    push("$ra");
+    int savedStack = stack;
+    m.stmts.accept(this);
+    pop(savedStack - stack);
+    pop("$ra");
+    code.emit("  jr $ra");
+    return null;
+  }
+
+  @Override
+  public Object visit(MethodDeclNonVoid m) {
+    code.emit(".globl mth_" + m.name + "_" + m.classDecl.name);
+    code.emit("mth_" + m.name + "_" + m.classDecl.name + ":");
+    push("$ra");
+    m.stmts.accept(this);
+    m.rtnExp.accept(this);
+    pop("$t0");
+    pop("$ra");
     code.emit("  jr $ra");
     return null;
   }
@@ -84,13 +129,27 @@ public class CG3Visitor extends Visitor
     // }
     return null;
   }
+  
+  @Override
+  public Object visit(Call c) {
+    System.out.println("stmt" + c.methName);
+    push("$s2");
+    c.args.accept(this);
+    pop("$s2");
+    code.emit("  jal mth_" + c.methName + "_" + c.obj.type.name());
+    pop("$s2");
+    push("$t0");
+    return null;
+  }
 
   @Override
   public Object visit(Block n) {
+    int startStack = stack;
     for(Stmt s : n.stmts)
     {
         s.accept(this);
     }
+    pop(stack - startStack);
     return null;
   }
 
@@ -127,6 +186,7 @@ public class CG3Visitor extends Visitor
     push(s);
     return null;
   }
+
 
   public Object push(StringLit s) {
     code.emit("  subu $sp, $sp, 4");
@@ -324,6 +384,8 @@ public class CG3Visitor extends Visitor
     code.emit("  jal divide");
     return null;
   }
+
+
 
   // @Override
   // public Object visit(Super n) {

@@ -6,7 +6,7 @@ package errorMsg;
  */
 public class CompWarning extends CompMessage
 {
-    private CompWarning(String m)
+    public CompWarning(String m)
     {
         super(m);
     }
